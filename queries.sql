@@ -1,84 +1,225 @@
-select order_date, sum(order_items.quantity) as kolichestvo from orders
-join order_items on order_items.order_id = orders.order_id
-join products on products.product_id = order_items.product_id
-where products.category = 'Accessories'
-group by order_date
-order by order_date;
+-- ===============================================
+-- Анализ продукции
+-- ===============================================
 
-select category, count(product_id) from products
-group by category;
+-- Запрос для выведения списка продуктов отсортированных по рейтингу от самого высокого к самому низкому
+SELECT 
+    products.product_id, 
+    products.product_name, 
+    suppliers.supplier_name, 
+    ROUND(AVG(reviews.rating), 2) AS avg_rating
+FROM 
+    suppliers
+JOIN 
+    products USING(supplier_id)
+JOIN 
+    reviews USING(product_id)
+GROUP BY 
+    products.product_id, products.product_name, suppliers.supplier_name
+ORDER BY 
+    avg_rating DESC;
 
-select category, sum(order_items.price_at_purchase*order_items.quantity) from products
-join order_items using(product_id)
-group by category
-order by sum(order_items.price_at_purchase*order_items.quantity) desc;
+-- Запрос для выведения продуктов с самым высоким рейтингом в каждой категории
+WITH AvgRatings AS (
+    SELECT 
+        products.category, 
+        products.product_id, 
+        products.product_name,
+        ROUND(AVG(reviews.rating)) AS avg_rating
+    FROM 
+        products
+    JOIN 
+        reviews ON products.product_id = reviews.product_id
+    GROUP BY 
+        products.category, products.product_id, products.product_name
+),
+RankedProducts AS (
+    SELECT 
+        *, 
+        RANK() OVER (PARTITION BY category ORDER BY avg_rating DESC) AS rank
+    FROM 
+        AvgRatings
+)
+SELECT 
+    category, product_id, product_name, avg_rating
+FROM 
+    RankedProducts
+WHERE 
+    rank = 1;
 
-select category, count(distinct supplier_id) as suppliers from suppliers
-join products using(supplier_id)
-group by category
-order by count(supplier_id) desc;
+-- Запрос для выведения 10 самых продаваемых продуктов и количества проданных продуктов за год
+SELECT 
+    products.product_id, 
+    products.product_name, 
+    SUM(quantity) AS total_sold
+FROM 
+    order_items
+RIGHT JOIN 
+    products USING(product_id)
+GROUP BY 
+    products.product_id, products.product_name
+HAVING 
+    SUM(quantity) IS NOT NULL
+ORDER BY 
+    total_sold DESC
+LIMIT 10;
 
-select supplier_name, sum(order_items.price_at_purchase*order_items.quantity) as profit from suppliers
-join products using(supplier_id)
-join order_items using(product_id)
-group by supplier_name
-order by sum(order_items.price_at_purchase*order_items.quantity) desc
-limit 5;
+-- Запрос для выведения самых прибыльных продуктов, компаний, которые их произвели, и выручка за год
+SELECT 
+    products.product_name, 
+    suppliers.supplier_name, 
+    SUM(quantity * price_at_purchase) AS total_revenue
+FROM 
+    order_items
+RIGHT JOIN 
+    products USING(product_id)
+JOIN 
+    suppliers USING(supplier_id)
+GROUP BY 
+    products.product_name, suppliers.supplier_name
+HAVING 
+    total_revenue IS NOT NULL
+ORDER BY 
+    total_revenue DESC
+LIMIT 10;
 
-select orders.order_date as date, sum(order_items.price_at_purchase*order_items.quantity) as profit from suppliers
-join products using(supplier_id)
-join order_items using(product_id)
-join orders using(order_id)
-where suppliers.supplier_name = 'Smart Solutions Ltd.'
-group by orders.order_date
-order by orders.order_date;
+-- Запрос для выведения самых продаваемых типов продуктов и количества проданных продуктов за год
+SELECT 
+    products.product_name, 
+    SUM(quantity) AS total_sold
+FROM 
+    order_items
+RIGHT JOIN 
+    products USING(product_id)
+GROUP BY 
+    products.product_name
+HAVING 
+    SUM(quantity) IS NOT NULL
+ORDER BY 
+    total_sold DESC
+LIMIT 10;
 
-select supplier_name, round(avg(reviews.rating), 2) from suppliers
-join products using(supplier_id)
-join reviews using(product_id)
-group by supplier_name
-order by avg(reviews.rating) desc;
+-- ===============================================
+-- Анализ производителей
+-- ===============================================
 
-select products.product_id, products.product_name, suppliers.supplier_name, round(avg(reviews.rating), 2) from suppliers
-join products using(supplier_id)
-join reviews using(product_id)
-group by products.product_id, products.product_name, suppliers.supplier_name
-order by avg(reviews.rating) desc;
+-- Запрос для выявления топ лучших 5 продавцов по величине прибыли за год
+SELECT 
+    supplier_name, 
+    SUM(order_items.price_at_purchase * order_items.quantity) AS profit
+FROM 
+    suppliers
+JOIN 
+    products USING(supplier_id)
+JOIN 
+    order_items USING(product_id)
+GROUP BY 
+    supplier_name
+ORDER BY 
+    profit DESC
+LIMIT 5;
 
-WITH AvgRatings AS (SELECT products.category, products.product_id, products.product_name,
-round(avg(reviews.rating)) as avg_rating FROM products
-  JOIN reviews ON products.product_id = reviews.product_id
-  GROUP BY products.category, products.product_id, products.product_name),
-RankedProducts AS (SELECT *, RANK() OVER (PARTITION BY category 
-   ORDER BY avg_rating DESC) AS rank FROM AvgRatings)
+-- Запрос для вычисления выручки одной компании по датам
+SELECT 
+    orders.order_date AS date,  
+    SUM(order_items.price_at_purchase * order_items.quantity) AS profit
+FROM  
+    suppliers
+JOIN  
+    products USING(supplier_id)
+JOIN  
+    order_items USING(product_id)
+JOIN  
+    orders USING(order_id)
+WHERE  
+    suppliers.supplier_name = 'Smart Solutions Ltd.'
+GROUP BY  
+    orders.order_date
+ORDER BY  
+    orders.order_date;
 
-SELECT category, product_id, product_name, avg_rating FROM RankedProducts
-WHERE rank = 1;
+-- Запрос для вычисления среднего рейтинга продавцов (от самого высокого к самому низкому)
+SELECT  
+    supplier_name,  
+    ROUND(AVG(reviews.rating), 2) AS avg_rating
+FROM  
+    suppliers  
+JOIN  
+    products USING(supplier_id)  
+JOIN  
+    reviews USING(product_id)
+GROUP BY  
+    supplier_name  
+ORDER BY  
+    avg_rating DESC;
 
-select products.product_id, products.product_name, sum(quantity) from order_items
-right join products using(product_id)
-group by products.product_id, products.product_name
-having sum(quantity) is not null
-order by sum(quantity) desc
-limit 10;
+-- ===============================================
+-- Анализ категорий
+-- ===============================================
 
-select products.product_name, suppliers.supplier_name, sum(quantity*price_at_purchase) from order_items
-right join products using(product_id)
-join suppliers using(supplier_id)
-group by products.product_name, suppliers.supplier_name
-having sum(quantity*price_at_purchase) is not null
-order by sum(quantity*price_at_purchase) desc
-limit 10;
+-- Запрос для подсчёта выручки в одной категории по датам
+SELECT  
+   order_date,  
+   SUM(order_items.quantity * order_items.price_at_purchase) AS total_revenue
+FROM  
+   orders  
+JOIN  
+   order_items ON order_items.order_id = orders.order_id  
+JOIN  
+   products ON products.product_id = order_items.product_id  
+WHERE  
+   products.category = 'Electronics'  
+GROUP BY  
+   order_date  
+ORDER BY  
+   order_date;
 
-select carrier, round(avg(delivery_date - shipment_date), 2) as delivery_time from shipments
-group by carrier
-order by round(avg(delivery_date - shipment_date)) asc;
+-- Запрос для подсчёта продуктов в каждой категории
+SELECT  
+   category, COUNT(product_id) AS product_count
+FROM  
+   products  
+GROUP BY  
+   category;
+
+-- Запрос для подсчёта выручки в каждой категории
+SELECT  
+   category, SUM(order_items.price_at_purchase * order_items.quantity) AS total_revenue
+FROM   
+   products   
+JOIN   
+   order_items USING(product_id)   
+GROUP BY   
+   category   
+ORDER BY   
+   total_revenue DESC;
+
+-- Запрос для подсчёта количества продавцов в каждой категории
+SELECT   
+   category, COUNT(DISTINCT supplier_id) AS supplier_count   
+FROM   
+   suppliers   
+JOIN   
+   products USING(supplier_id)   
+GROUP BY   
+   category   
+ORDER BY   
+   supplier_count DESC;
+
+-- ===============================================
+-- Анализ сервисов доставки
+-- ===============================================
+
+-- Запрос для вычисления среднего времени доставки для каждого сервиса
+SELECT   
+   carrier, 
+   ROUND(AVG(delivery_date - shipment_date), 2) AS avg_delivery_time    
+FROM    
+   shipments    
+GROUP BY    
+   carrier    
+ORDER BY    
+   avg_delivery_time ASC;
 
 
-select products.product_name, sum(quantity) from order_items
-right join products using(product_id)
-group by products.product_name
-having sum(quantity) is not null
-order by sum(quantity) desc
-limit 10;
 
