@@ -18,7 +18,9 @@
 3) У обеих компаний продажи имеются сезонные спады продаж
 
 ## Анализ продуктов
-![image](https://github.com/user-attachments/assets/8a3bfcdc-6711-40c1-a6e3-7626513d1ce7)
+![image](https://github.com/user-attachments/assets/764cd564-c6dd-48c4-b27c-b670b4d9b39a)
+
+![image](https://github.com/user-attachments/assets/8a9064b3-a58b-4a30-8f40-24d6b606b2f8)
 
 
 ## Анализ сервисов доставки
@@ -27,4 +29,6 @@
 Выводы:
 1) Сервисы практически не отличаются по среднему времени доставки
 
-## Заключение
+## Ключевые выводы
+
+## Рекомендации
