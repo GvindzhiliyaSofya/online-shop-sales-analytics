@@ -1,14 +1,19 @@
 # Результаты анализа
 ## Анализ категорий продкутов
-![image](https://github.com/user-attachments/assets/8b59b987-81fa-41cf-8146-ab4f11a20f3c)
-![image](https://github.com/user-attachments/assets/588be26d-fa61-4cf8-9684-cc7f8589efdc)
-![image](https://github.com/user-attachments/assets/155fad5f-2b6e-4b04-a9ae-981551eecf91)
+![image](https://github.com/user-attachments/assets/8ad2b9e5-c770-4bb5-98ee-29e32aafc1e7)
+
+![image](https://github.com/user-attachments/assets/0726b95f-3c6c-4640-9c3d-5c33fefad4bb)
+![image](https://github.com/user-attachments/assets/c73d9c82-4109-41d9-a897-fb6fcf0a37ff)
 
 ## Анализ производителей
-![image](https://github.com/user-attachments/assets/26a0327e-4616-4bb2-97ba-5a4523efc083)
-![image](https://github.com/user-attachments/assets/b6a44d40-79b0-4801-8ba7-1be631d7acde)
+![image](https://github.com/user-attachments/assets/1f00e9f7-31a3-4aa2-9a2d-20c930db43ed)
+![image](https://github.com/user-attachments/assets/7143a31d-9bec-4f75-bc94-eb61f38f5634)
 
 
 ## Анализ продуктов
+![image](https://github.com/user-attachments/assets/8a3bfcdc-6711-40c1-a6e3-7626513d1ce7)
+
+## Анализ сервисов доставки
+![image](https://github.com/user-attachments/assets/741916f9-c829-4529-8e80-0443f1cd6317)
 
 ## Заключение
