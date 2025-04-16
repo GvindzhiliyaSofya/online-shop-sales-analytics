@@ -94,24 +94,6 @@ FROM
 WHERE 
     rank = 1;
 
--- Запрос для выведения 10 самых продаваемых продуктов и количества проданных продуктов за год
-SELECT 
-    p.product_id, 
-    p.product_name, 
-    SUM(oi.quantity) AS total_sales
-FROM 
-    order_items oi
-RIGHT JOIN 
-    products p USING (product_id)
-GROUP BY 
-    p.product_id, 
-    p.product_name
-HAVING 
-    SUM(oi.quantity) IS NOT NULL
-ORDER BY 
-    total_sales DESC
-LIMIT 10;
-
 -- Запрос для выведения самых прибыльных продуктов, компаний, которые их произвели, и выручка за год
 SELECT 
     p.product_name, 
@@ -130,22 +112,6 @@ HAVING
     SUM(oi.quantity * oi.price_at_purchase) IS NOT NULL
 ORDER BY 
     total_revenue DESC
-LIMIT 10;
-
--- Запрос для выведения самых продаваемых типов продуктов и количества проданных продуктов за год
-SELECT 
-    p.product_name, 
-    SUM(oi.quantity) AS total_sales
-FROM 
-    order_items oi
-RIGHT JOIN 
-    products p USING (product_id)
-GROUP BY 
-    p.product_name
-HAVING 
-    SUM(oi.quantity) IS NOT NULL
-ORDER BY 
-    total_sales DESC
 LIMIT 10;
 
 -- ===============================================
