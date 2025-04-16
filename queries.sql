@@ -189,15 +189,6 @@ GROUP BY
 ORDER BY 
     o.order_date;
 
--- Запрос для подсчёта продуктов в каждой категории
-SELECT 
-    p.category, 
-    COUNT(p.product_id) AS num_products
-FROM 
-    products p
-GROUP BY 
-    p.category;
-
 -- Запрос для подсчёта выручки в каждой категории
 SELECT 
     p.category, 
